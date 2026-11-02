@@ -1,0 +1,337 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Student Confusion Detection System v6</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* ===== STYLES: colours are the --g --y --r --b --p variables in :root ===== */
+:root {
+  --ink:#1b1b3a;
+  --mut:#6b6f8a;
+  --g:#12c26b;
+  --y:#ffb703;
+  --r:#ff3d5a;
+  --b:#3a6bff;
+  --p:#8b3dff;
+  --line:#ececf6;
+}
+* {
+  box-sizing:border-box;
+}
+body {
+  margin:0;
+  color:var(--ink);
+  font:16px/1.5 "Segoe UI",system-ui,sans-serif;
+  background:#fff;
+}
+header {
+  padding:20px 12px 0;
+  text-align:center;
+}
+h1 {
+  margin:0;
+  font-size:clamp(20px,4vw,30px);
+  color:var(--p);
+}
+nav {
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:12px 8px;
+}
+nav button {
+  border:2px solid var(--line);
+  background:#fff;
+  padding:8px 12px;
+  border-radius:999px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:13px;
+}
+nav button.on {
+  background:var(--p);
+  color:#fff;
+  border-color:var(--p);
+}
+main {
+  max-width:860px;
+  margin:0 auto;
+  padding:0 12px 40px;
+}
+.card {
+  border:2px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:12px;
+}
+input[type=text],input[type=number] {
+  width:100%;
+  border:2px solid var(--line);
+  border-radius:10px;
+  padding:9px;
+  font:inherit;
+}
+.btn {
+  background:var(--b);
+  color:#fff;
+  border:0;
+  padding:10px 16px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  margin:6px 6px 0 0;
+}
+.btn.g {
+  background:var(--g);
+}
+.btn.p {
+  background:var(--p);
+}
+.btn.r {
+  background:var(--r);
+}
+.mut {
+  color:var(--mut);
+  font-size:14px;
+}
+.row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.opts {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:8px 0;
+}
+.opt {
+  flex:1;
+  min-width:130px;
+  padding:10px;
+  border-radius:10px;
+  border:2px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
+.opt.s0 {
+  background:var(--g);
+  color:#fff;
+}
+.opt.s1 {
+  background:var(--y);
+}
+.opt.s2 {
+  background:var(--r);
+  color:#fff;
+}
+.opt.s3 {
+  background:var(--p);
+  color:#fff;
+}
+.flag {
+  color:#fff;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+.kpi {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.kpi div {
+  flex:1;
+  min-width:120px;
+  border-radius:14px;
+  padding:10px;
+  color:#fff;
+  font-weight:700;
+}
+.kpi b {
+  display:block;
+  font-size:26px;
+}
+.bar {
+  display:flex;
+  height:16px;
+  border-radius:99px;
+  overflow:hidden;
+  background:var(--line);
+  margin:6px 0;
+}
+.bar i {
+  display:block;
+}
+.chip {
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:99px;
+  font-size:12px;
+  font-weight:700;
+  color:#fff;
+  background:var(--b);
+}
+table {
+  border-collapse:collapse;
+  width:100%;
+  font-size:14px;
+}
+td,th {
+  border-bottom:1px solid var(--line);
+  padding:8px;
+  text-align:left;
+}
+.empty {
+  text-align:center;
+  padding:28px;
+  color:var(--mut);
+}
+.chat {
+  background:#f5f0ff;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+}
+.tg {
+  display:inline-block;
+  margin:4px;
+  padding:8px 12px;
+  border-radius:12px;
+  border:2px solid var(--g);
+  font-weight:700;
+  cursor:pointer;
+}
+.tg.off {
+  border-color:#ccc;
+  color:#999;
+  text-decoration:line-through;
+}
+.tt td{text-align:center;font-size:13px;font-weight:700;padding:10px 4px;border:3px solid #fff;border-radius:10px}
+.tt th{text-align:center;font-size:12px;border:none}
+.tt .B{background:#eceaf3;color:#999}
+.tt .T{background:#dfe9fb;color:#333}
+.tt .C{background:#fdf0cf;color:#333}
+.tt .F{background:var(--g);color:#fff;cursor:pointer}
+.tt .F.pick{outline:3px solid var(--p)}
+</style></head><body>
+<!-- Page shell: title, empty nav and main. JavaScript fills them. -->
+<header><h1>AI-Powered Student Confusion Detection System</h1><div class="mut">Every number on screen comes from real responses entered in this app.</div></header>
+<nav id="nav"></nav><main id="v"></main>
+<script>
+// ===== CONFIG: change numbers here during the demo =====
+const CONFIG = {
+  HONEST_BELOW: 20,   // mismatch % below this = HONEST
+  CHECK_BELOW: 30,    // mismatch % below this = CHECK, otherwise DISHONEST
+  PLAN_WHOLE: 70,     // weak % at/above this = whole class struggled
+  PLAN_MANY: 40,      // weak % at/above this = many students weak
+  PLAN_FEW: 20,       // weak % at/above this = a few students weak
+  POINTS_PER_HELP: 10 // points for confirmed peer help
+};
+
+// ===== HELPERS and SAVED DATA (S is a copy of the data kept on the backend server) =====
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const K='cds6',D=()=>({topics:['Waterfall model','Evolutionary model','V-model','Spiral model','Incremental model'].map(t=>({t,on:1})),link:'https://kahoot.it',resp:[],kq:{},reqs:[],pts:0,helped:0,shared:0});
+let S = D();   // local copy of the data. The real data lives on the BACKEND server.
+
+// ===== BACKEND CALLS: every action talks to server.js through these =====
+async function api(path, body) {
+  try {
+    const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : undefined);
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Server error'); return S; }
+    return data;
+  } catch (e) { toast('⚠ Server not reachable'); return S; }
+}
+async function pushConfig() { S = await api('/api/config', { topics: S.topics, link: S.link, shared: S.shared, kq: S.kq }); render(); }
+async function resetAll() { S = await api('/api/reset', {}); render(); }
+async function helpAct(i, action) { S = await api('/api/help', { i, action }); render(); if (action == 'confirm') toast('+' + CONFIG.POINTS_PER_HELP + ' points'); }
+async function load() { S = await api('/api/state'); render(); }
+// Auto-refresh every 3 seconds so data from other phones appears live
+setInterval(async () => {
+  try {
+    const n = await (await fetch('/api/state')).json();
+    if (JSON.stringify(n) !== JSON.stringify(S)) { S = n; if ([2, 3, 4, 6].includes(tab)) render(); }
+  } catch (e) {}
+}, 3000);
+let tab=0,stage='kahoot',vt={},help='',nm='';
+// ===== TAB NAMES (change the text here) =====
+const TABS=['① Teacher setup','② Student','③ Help chat','④ Dashboard','⑤ Action plan','⑥ Kahoot vs feedback','⑦ Rewards'];
+const act=()=>S.topics.filter(x=>x.on).map(x=>x.t);
+// ===== AI HINT TEXTS shown in the help chat =====
+const SUM={waterfall:'Linear phases, one after another.',evolutionary:'Rough version first, refined with feedback.','v-model':'Each build phase has a matching test phase.',spiral:'Repeated loops with risk analysis.',incremental:'Product delivered in small working parts.'};
+const hint=t=>{const k=t.toLowerCase();for(const x in SUM)if(k.includes(x))return SUM[x];return 'Revise the key idea of '+t+'.'};
+// ===== st(topic): counts understand / partial / confused votes =====
+function st(t){const a=[0,0,0];S.resp.forEach(x=>{if(x.r[t]!==undefined)a[x.r[t]]++});const T=a[0]+a[1]+a[2];const q=S.kq[t];
+ const hq=q!==undefined&&q!=='';return{a,T,u:T?a[0]/T*100:null,w:hq?100-q:(T?(a[1]+a[2])/T*100:null),hq}}
+// ===== plan(w): turns weak % into advice for the teacher =====
+function plan(w){if(w>=CONFIG.PLAN_WHOLE)return{lv:'🚨 Whole class struggled',c:'var(--r)',s:['Re-teach 10–15 min with a NEW approach (diagram, example)','Do not repeat the same lecture','Close with a 2-question Kahoot check']};
+ if(w>=CONFIG.PLAN_MANY)return{lv:'⚠ Many students weak',c:'var(--p)',s:['Quick 10-min revision next class','Peer discussion in pairs','Remedial slot for students who chose the teacher']};
+ if(w>=CONFIG.PLAN_FEW)return{lv:'🟡 A few students weak',c:'var(--y)',s:['No class time needed','Share practice questions with those who asked','Short doubt session in a free hour']};
+ return{lv:'✅ Mostly clear',c:'var(--g)',s:['No action needed','Optional: one enrichment question']}}
+// ===== TIMETABLE: B=both busy, T=only teacher free, C=only class free, F=both free (edit the letters to change the demo) =====
+const TT={periods:[['P1','9:00'],['P2','10:00'],['P3','11:15'],['P4','12:15'],['P5','2:00'],['P6','3:00']],days:{Mon:'BTBFTC',Tue:'TBFBBF',Wed:'TCBTFB',Thu:'CTBTBF',Fri:'BTTBCF'}};
+let booked=null;
+const book=(d,i)=>{booked={d,i};render();toast('Session booked')};
+function ttCard(tl){const L={B:'Busy',T:'Teacher',C:'Class',F:'✓ Free'};const names=[...new Set(tl.map(x=>x.name))];
+ const head='<tr><th></th>'+TT.periods.map(p=>`<th>${p[0]}<br><span class="mut">${p[1]}</span></th>`).join('')+'</tr>';
+ const rows=Object.keys(TT.days).map(d=>'<tr><th>'+d+'</th>'+TT.days[d].split('').map((c,i)=>c=='F'?`<td class="F ${booked&&booked.d==d&&booked.i==i?'pick':''}" onclick="book('${d}',${i})">${L[c]}</td>`:`<td class="${c}">${L[c]}</td>`).join('')+'</tr>').join('');
+ const msg=booked?`<div class="btn g" style="display:block;margin-top:10px">✔ Session booked: ${booked.d} ${TT.periods[booked.i][0]} (${TT.periods[booked.i][1]})${names.length?' · students notified: '+names.map(esc).join(', '):''}</div>`:'<div class="mut" style="margin-top:8px">Tap a green slot to book the remedial session.</div>';
+ return `<div class="card"><b>🗓 Free-hour finder</b><div class="mut">Green = teacher AND class both free. Teacher = only teacher free. Class = only class free.</div><div style="overflow-x:auto"><table class="tt">${head}${rows}</table></div>${msg}</div>`}
+const flag=p=>`<span class="flag" style="background:${p.c};${p.c=='var(--y)'?'color:#222':''}">${p.lv}</span>`;
+// ===== render(): redraws the screen; each tab is one function r1..r7 =====
+function render(){$('#nav').innerHTML=TABS.map((t,i)=>`<button class="${i==tab?'on':''}" onclick="tab=${i};render()">${t}</button>`).join('');$('#v').innerHTML=[r1,r2,r3,r4,r5,r6,r7][tab]()}
+// ===== TAB 1: Teacher setup =====
+function r1(){const A=act();return `<div class="card"><b>📅 Topics taught this week</b><div class="mut">Tap to mark a topic as not completed (left out of the quiz and dashboard).</div>${S.topics.map((x,i)=>`<span class="tg ${x.on?'':'off'}" onclick="tgl(${i})">${esc(x.t)}</span>`).join('')}
+<div class="row" style="flex-wrap:nowrap;margin-top:8px"><input type="text" id="nt" placeholder="Add a topic"><button class="btn" style="margin:0" onclick="addT()">Add</button></div></div>
+<div class="card"><div class="row"><b>🔗 Weekly Kahoot quiz</b><span class="chip" style="background:${S.shared?'var(--g)':'var(--y);color:#222'}">${S.shared?'Shared with students':'Not shared yet'}</span></div>
+<input type="text" id="kl" value="${esc(S.link)}" style="margin-top:8px"><div class="mut" style="margin-top:6px">Topics for the quiz: <b>${A.map(esc).join(' · ')||'none'}</b></div>
+<button class="btn p" onclick="navigator.clipboard&&navigator.clipboard.writeText('${A.join('\\n').replace(/'/g,"\\'")}');toast('Topics copied')">📋 Copy topics</button><button class="btn g" onclick="S.link=$('#kl').value;S.shared=1;pushConfig()">📲 Share with students</button></div>
+<div class="card"><b>🧹 Demo data</b><div class="mut">${S.resp.length} real responses stored on the server.</div><button class="btn r" onclick="if(confirm('Delete all responses and start fresh?')){stage='kahoot';vt={};help='';resetAll()}">Reset all data</button></div>`}
+function tgl(i){if(S.topics[i].on&&act().length==1)return;S.topics[i].on=S.topics[i].on?0:1;pushConfig()}
+function addT(){const v=$('#nt').value.trim();if(v){S.topics.push({t:v,on:1});pushConfig()}}
+function toast(m){const e=document.createElement('div');e.textContent=m;e.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b1b3a;color:#fff;padding:10px 18px;border-radius:99px;font-weight:700';document.body.appendChild(e);setTimeout(()=>e.remove(),1800)}
+// ===== TAB 2: Student feedback =====
+function r2(){if(!S.shared)return '<div class="card empty">👈 The teacher must share the Kahoot link first (tab ①).</div>';
+ if(stage=='kahoot')return `<div class="card empty"><div style="font-size:42px">🎮</div><h2>Step 1: Play the weekly Kahoot quiz</h2><div class="mut">${esc(S.link)}</div><a href="${esc(S.link)}" target="_blank" rel="noopener"><button class="btn p">Open Kahoot ↗</button></a><br><button class="btn g" onclick="stage='fb';render()">I finished the quiz ✔</button></div>`;
+ if(stage=='done')return `<div class="card empty"><div style="font-size:42px">🎉</div><h2>Thank you!</h2><div class="mut">Your response was added. Check the dashboard.</div><button class="btn p" onclick="tab=3;render()">See dashboard →</button><button class="btn" onclick="stage='fb';vt={};help='';nm='';render()">Another student responds</button></div>`;
+ const A=act(),weak=A.some(t=>vt[t]>0);
+ return `<div class="card mut">🔒 Feedback is anonymous (unless you choose the teacher). Quiz marks stay in Kahoot.</div>`+A.map(t=>`<div class="card"><b>Did you understand the ${esc(t)}?</b><div class="opts">${['🟢 I understand','🟡 Partially','🔴 Don’t understand'].map((l,j)=>`<button class="opt ${vt[t]===j?'s'+j:''}" onclick="vt['${t.replace(/'/g,"\\'")}']=${j};render()">${l}</button>`).join('')}</div></div>`).join('')+
+ (weak&&A.every(t=>vt[t]!==undefined)?`<div class="card"><b>Who should help you with weak topics?</b><div class="opts"><button class="opt ${help=='peers'?'s3':''}" onclick="help='peers';render()">👥 Classmates (anonymous)</button><button class="opt ${help=='teacher'?'s3':''}" onclick="help='teacher';render()">🧑‍🏫 Teacher (name shown)</button></div>${help=='teacher'?`<input type="text" id="nm" placeholder="Your name" value="${esc(nm)}" oninput="nm=this.value">`:''}</div>`:'')+`<button class="btn g" onclick="sub()">Submit ✔</button>`}
+// ----- sub(): validates and saves one student's response -----
+function sub(){const A=act();if(!A.every(t=>vt[t]!==undefined))return alert('Please rate every topic.');const wk=A.filter(t=>vt[t]>0);
+ if(wk.length&&!help)return alert('Please choose who should help you.');if(help=='teacher'&&!nm.trim())return alert('Please enter your name.');
+ api('/api/response',{r:{...vt},help:wk.length?help:'',name:help=='teacher'?nm.trim():''}).then(x=>{S=x;stage='done';render()})}
+// ===== TAB 3: Class help chat =====
+function r3(){return `<div class="card"><b>👥 Class help chat</b> <span class="chip" style="background:var(--r)">Teacher cannot see this</span><div class="mut">Requests come from students who chose “Classmates”. A helper taps “I can help”; points are given only when the helped student confirms.</div></div>`+
+ (S.reqs.length?S.reqs.map((r,i)=>`<div class="chat"><b>A classmate needs help with ${esc(r.t)}</b><div class="mut">🤖 AI hint: ${hint(r.t)}</div><div class="row"><span class="mut">${r.h} classmate(s) offered help</span>${!r.o?`<button class="btn" onclick="helpAct(${i},'offer')">👍 I can help</button>`:!r.c?`<button class="btn g" onclick="helpAct(${i},'confirm')">✅ Student says “This helped”</button>`:'<span class="chip" style="background:var(--g)">+10 earned</span>'}</span></div></div>`).join(''):'<div class="card empty">No help requests yet. They appear when a student chooses “Classmates”.</div>')}
+// ===== TAB 4: Dashboard =====
+function r4(){const A=act().filter(t=>st(t).T>0);if(!S.resp.length)return '<div class="card empty">📊 No responses yet. Submit feedback in tab ② and the dashboard fills in.</div>';
+ const n=S.resp.length,avg=Math.round(A.reduce((s,t)=>s+st(t).u,0)/A.length),att=A.filter(t=>st(t).w>=CONFIG.PLAN_MANY).length,tc=S.resp.filter(x=>x.help=='teacher').length;
+ return `<div class="kpi"><div style="background:var(--b)"><b>${n}</b>students responded</div><div style="background:var(--g)"><b>${avg}%</b>avg. “I understand”</div><div style="background:var(--r)"><b>${att}</b>topics need attention</div><div style="background:var(--p)"><b>${tc}</b>asked the teacher</div></div>`+
+ A.map(t=>{const s=st(t),[a,b,c]=s.a;return `<div class="card"><div class="row"><b>${esc(t)}</b>${flag(plan(s.w))}</div><div class="bar"><i style="width:${a/s.T*100}%;background:var(--g)"></i><i style="width:${b/s.T*100}%;background:var(--y)"></i><i style="width:${c/s.T*100}%;background:var(--r)"></i></div><div class="mut">🟢 ${a} understand · 🟡 ${b} partially · 🔴 ${c} don’t understand</div></div>`}).join('')+
+ `<div class="card mut">${Object.keys(S.kq).length?'Level uses Kahoot results where entered (tab ⑥).':'Level uses feedback only. Enter Kahoot results in tab ⑥ to check honesty.'}</div>`}
+// ===== TAB 5: Action plan =====
+function r5(){const A=act().filter(t=>st(t).T>0);if(!A.length)return '<div class="card empty">🧭 No data yet. The plan appears after students respond.</div>';
+ const d=A.map(t=>({t,s:st(t)})).sort((x,y)=>y.s.w-x.s.w),tl=S.resp.filter(x=>x.help=='teacher');
+ return `<div class="card" style="border-color:var(--p)"><b>🧭 Top priority</b><div>Re-teach <b>${esc(d[0].t)}</b>: ${Math.round(d[0].s.w)}% weak${d[0].s.hq?' (by Kahoot marks)':' (by feedback)'}.</div></div>`+
+ d.map(x=>{const p=plan(x.s.w);return `<div class="card" style="border-left:8px solid ${p.c}"><div class="row"><b>${esc(x.t)}</b>${flag(p)}</div><ul style="margin:6px 0;padding-left:20px">${p.s.map(z=>'<li>'+z+'</li>').join('')}</ul></div>`}).join('')+
+ `<div class="card"><b>🧑‍🏫 Students who chose the teacher</b>${tl.length?tl.map(x=>`<div style="margin-top:6px"><span class="chip" style="background:var(--p)">${esc(x.name)}</span> ${Object.keys(x.r).filter(t=>x.r[t]>0).map(esc).join(', ')}</div>`).join(''):'<div class="mut">None yet.</div>'}</div>`+ttCard(tl)}
+// ===== TAB 6: Kahoot vs feedback (honesty check) =====
+function r6(){const A=act();
+ let h=`<div class="card"><b>📥 Enter Kahoot results</b><div class="mut">From the Kahoot report, enter the % of players who answered each topic’s questions correctly.</div>${A.map(t=>`<div class="row" style="margin-top:8px"><span>${esc(t)}</span><input type="number" min="0" max="100" style="width:100px" placeholder="% correct" value="${S.kq[t]??''}" onchange="S.kq['${t.replace(/'/g,"\\'")}']=this.value===''?'':Math.min(100,Math.max(0,+this.value));pushConfig()"></div>`).join('')}</div>`;
+ const rows=A.filter(t=>S.kq[t]!==undefined&&S.kq[t]!==''&&st(t).T>0);
+ if(!rows.length)return h+'<div class="card empty">Enter Kahoot % and collect feedback to see the honesty check.</div>';
+ return h+`<div class="card"><b>Kahoot quiz vs student feedback</b><div style="overflow-x:auto"><table><tr><th>Topic</th><th>Quiz correct</th><th>Said “understand”</th><th>Mismatch</th><th>Verdict</th></tr>`+rows.map(t=>{const q=+S.kq[t],u=st(t).u,m=Math.abs(u-q);
+ const v=m<CONFIG.HONEST_BELOW?['HONEST','var(--g)','Feedback matches the quiz']:m<CONFIG.CHECK_BELOW?['CHECK','var(--y)','Ask 2 quick questions in class']:u>q?['DISHONEST: over-claiming','var(--r)','Said “understand” but quiz was low']:['DISHONEST: under-claiming','var(--r)','Quiz was good but said “don’t understand”'];
+ return `<tr><td><b>${esc(t)}</b></td><td>${Math.round(q)}%</td><td>${Math.round(u)}%</td><td>${Math.round(m)}%</td><td><span class="flag" style="background:${v[1]};${v[1]=='var(--y)'?'color:#222':''}">${v[0]}</span><div class="mut" style="font-size:12px">${v[2]}</div></td></tr>`}).join('')+`</table></div><div class="mut" style="margin-top:8px">Mismatch = |quiz % − “understand” %|. Under 20% honest · 20–29% check · 30% or more dishonest. A signal to verify, not a punishment.</div></div>`}
+// ===== TAB 7: Rewards =====
+const RW=[[10,'🌱','Helper badge'],[30,'🥈','Peer Mentor + shout-out'],[60,'📜','Digital certificate'],[100,'🏆','Bonus credit (set by institution)']];
+function r7(){const nx=RW.find(x=>S.pts<x[0]);return `<div class="card" style="background:var(--p);color:#fff"><div style="font-size:26px;font-weight:800">${S.pts} points</div><div>${S.helped} classmates helped</div><div style="font-size:13px;margin-top:4px">${nx?(nx[0]-S.pts)+' points to '+nx[2]:'All rewards unlocked!'}</div></div>`+
+ RW.map(x=>`<div class="card row" style="opacity:${S.pts>=x[0]?1:.5}"><span style="font-size:26px">${x[1]}</span><b style="flex:1">${x[2]}</b><span class="chip" style="background:${S.pts>=x[0]?'var(--g)':'#c9cce0'}">${S.pts>=x[0]?'✔ Unlocked':x[0]+' pts'}</span></div>`).join('')+
+ `<div class="card mut">Points are earned only when the helped student confirms the help worked (tab ③).</div>`}
+load();   // get data from the backend and draw the screen
+</script></body></html>

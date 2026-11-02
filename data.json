@@ -1,0 +1,31 @@
+{
+  "topics": [
+    {
+      "t": "Waterfall model",
+      "on": 1
+    },
+    {
+      "t": "Evolutionary model",
+      "on": 1
+    },
+    {
+      "t": "V-model",
+      "on": 1
+    },
+    {
+      "t": "Spiral model",
+      "on": 1
+    },
+    {
+      "t": "Incremental model",
+      "on": 1
+    }
+  ],
+  "link": "https://kahoot.it",
+  "resp": [],
+  "kq": {},
+  "reqs": [],
+  "pts": 0,
+  "helped": 0,
+  "shared": 0
+}

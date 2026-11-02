@@ -1,0 +1,7 @@
+{
+  "name": "confusion-detection",
+  "version": "1.0.0",
+  "description": "Student confusion detection: Node.js backend + HTML frontend",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" }
+}
